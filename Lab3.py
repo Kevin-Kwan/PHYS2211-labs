@@ -1,4 +1,4 @@
-GlowScript 2.9 VPython
+GlowScript 3.1 VPython
 ## PHYS 2211 Online
 ## Lab 3: Black Hole
 ## 2211-lab3start.py
@@ -8,7 +8,7 @@ GlowScript 2.9 VPython
 ## =============================================================== 
 ## EDIT THIS ONE LINE: TYPE YOUR GT EMAIL ADDRESS HERE, IN QUOTES 
 ## ===============================================================
-seed="gpburdell@gatech.edu"
+seed="kkwan9@gatech.edu"
 
 
 
@@ -118,11 +118,11 @@ arrowFnet_perp = arrow(pos=star.pos, axis=vector(0,0,0), color=color.cyan)
 # Gravitational constant
 G = 6.7e-11
 
-# Mass of the star -- EDIT THIS LINE
-star.m = 1 
+# Mass of the star 
+star.m = 2.0e30  # given in the lab instructions
 
-# Time interval between imported data points -- EDIT THIS LINE
-deltat = 1
+# Time interval between imported data points
+deltat = 86400 # number of seconds in a day
 
 # Time for first observation data point (default t=0)
 t = 0
@@ -154,44 +154,44 @@ idx=1
 
 while idx <(len(X)-1):  #iterate over data values
     # Control how fast the simulation runs (larger number runs faster)
-    rate(50) 
+    rate(100) 
 
     # Use velocity components define initial and final velocities
     v_init = vector(Xvel[idx-1],Yvel[idx-1],0)
     v_final = vector(Xvel[idx],Yvel[idx],0)
 
-    # Compute initial and final momentum vectors -- EDIT THESE TWO LINES
-    p_init = vector(0,0,0)
-    p_final = vector(0,0,0)
+    # Compute initial and final momentum vectors 
+    p_init = star.m*v_init # pi=mvi
+    p_final = star.m*v_final # pf=mvf
     
-    # Calculate star's change in velocity and change in momentum -- EDIT THESE TWO LINES
-    deltav = vector(0,0,0)
-    deltap = vector(0,0,0)
+    # Calculate star's change in velocity and change in momentum 
+    deltav = v_final-v_init # change in v = vf-vi
+    deltap = p_final-p_init # change in p = pf-pi
 
-    # Calculate dp/dt (call it dpdt) -- EDIT THIS LINE
-    dpdt = vector(0,0,0)
+    # Calculate dp/dt (call it dpdt)
+    dpdt = deltap/deltat 
 
-    # Use Newton's 2nd Law to calculate Fnet -- EDIT THIS LINE
-    Fnet = vector(0,0,0)
+    # Use Newton's 2nd Law to calculate Fnet 
+    Fnet = dpdt 
 
     # Calculate dp/dt parallel (to phat) -- EDIT THESE THREE LINES
-    phat = vector(0,0,0)
-    dmagpdt = vector(0,0,0)
-    dpdt_par = vector(0,0,0)
+    phat = p_init/mag(p_init) # unit vector of p
+    dmagpdt = (mag(p_final)-mag(p_init))/deltat
+    dpdt_par = dmagpdt*phat
 
     # Use Newton's 2nd Law to calculate Fnet_par -- EDIT THIS LINE
-    Fnet_par = vector(0,0,0)
+    Fnet_par = dpdt_par
 
     # Calculate dp/dt perpendicular (to phat) -- EDIT THIS LINE
-    dpdt_perp = vector(0,0,0)
+    dpdt_perp = dpdt-dpdt_par
 
     # Use Newton's 2nd Law to calculate Fnet_perp -- EDIT THIS LINE
-    Fnet_perp = vector(0,0,0)
+    Fnet_perp = dpdt_perp
 
     # Calculate the mass of the black hole 
-    # EDIT AND ADD LINES AS NEEDED
-    mBH = 1
+    mBH = ((mag(Fnet)*mag(star.pos)*mag(star.pos))/(G*star.m))
     print(mBH)
+    
 
     # Update current position and velocity and show the object's current track
     star.pos = vector(X[idx],Y[idx],0)
@@ -199,13 +199,13 @@ while idx <(len(X)-1):  #iterate over data values
 
     # Draw arrows to represent forces (Fnet, Fnet_par, Fnet_perp)
     # EDIT THE NEXT SEVEN LINES
-    arrowscale = 1      # determines how long to draw the arrows that represent vectors
-    arrowFnet.pos = vector(0,0,0)
-    arrowFnet.axis = vector(0,0,0)
-    arrowFnet_par.pos = vector(0,0,0)
-    arrowFnet_par.axis = vector(0,0,0)
-    arrowFnet_perp.pos = vector(0,0,0)
-    arrowFnet_perp.axis = vector(0,0,0)
+    arrowscale = 2e-17     # determines how long to draw the arrows that represent vectors
+    arrowFnet.pos = star.pos
+    arrowFnet.axis = Fnet*arrowscale
+    arrowFnet_par.pos = star.pos
+    arrowFnet_par.axis = Fnet_par*arrowscale
+    arrowFnet_perp.pos = star.pos
+    arrowFnet_perp.axis = Fnet_perp*arrowscale
     
     # Advance the clock
     t = t + deltat
