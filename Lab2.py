@@ -2,7 +2,6 @@ GlowScript 3.0 VPython
 ## PHYS 2211 Online
 ## Lab 2: Motion of a Falling Object
 ## 2211-lab2start.py
-## Last updated: 2021-01-11 EAM
 
 
 ## =====================================
@@ -33,28 +32,28 @@ velcurve = gcurve(color=color.green, width=4)
 ## =======================================
 
 # System Mass -- EDIT THIS NEXT LINE
-ball.m = 1
+ball.m = 0.004535924
 
 # Initial Conditions -- EDIT THESE TWO LINES (as necessary)
 ball.pos = vector(0,0,0)
-ball.vel = vector(0,-1,0)
+ball.vel = vector(0,0,0)
 
 # Time -- EDIT THESE TWO LINES (as necessary)
 t = 0            # where the clock starts
-deltat = 0.001   # size of each timestep
+deltat = 1/60   # size of each timestep
 
 
 # Interactions
 # Magnitude of the acceleration due to gravity near Earth's surface
-g = 9.8
+g = 9.81
 
 # Unit vector for the positive y axis (pointing up)
 jhat = vector(0,1,0)
 
 # Proportionality constant for the magnitude of the drag force -- EDIT AS NECESSARY
 # When b=0, the model is gravity only, no air resistance
-b = 0
-
+#b = 0.0135 # no air resistance
+b = 0 # yes air resistance
 
 
 ## ======================================
@@ -62,18 +61,20 @@ b = 0
 ## (motion prediction and visualization)
 ## ======================================
 
-while t < 1.0:
+while t < 0.683:
     # Control how fast the program runs (larger number runs faster)
     rate(100)
     
-    # Calculate Net Force -- EDIT THIS NEXT LINE, ADDING MORE LINES AS NECESSARY
-    Fnet = vector(10,0,0)
+    # Calculate Net Force
+    W = - ball.m * g * jhat # equation of force of gravity
+    Fd = b * mag(ball.vel)* mag(ball.vel)*jhat # equation of drag force b*v^2
+    Fnet = W + Fd # net force is gravitational force + drag force
 
     # Apply the Momentum Principle (Newton's 2nd Law)
-    # Update the object's velocity -- EDIT THIS NEXT LINE
-    ball.vel = ball.vel + vector(0,0,0)
+    # Update the object's velocity -- EDIT THIS NEXT LINE (changed used formulas)
+    ball.vel = ball.vel + (Fnet/ball.m)*deltat
     # Update the object's position -- EDIT THIS NEXT LINE
-    ball.pos = ball.pos + vector(0,-0.001,0)
+    ball.pos = ball.pos + ball.vel*deltat
     
     # Advance the clock
     t = t + deltat
@@ -95,6 +96,6 @@ while t < 1.0:
 
     # Uncomment this next line to print time and position in text field
     # (which you can then copy and paste into a spreadsheet)
-    #print(t,ball.pos.y)
+    print(t,ball.pos.y)
     
 print("All done!")
