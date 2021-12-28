@@ -45,10 +45,10 @@ ball2 = sphere(radius=0.025, color=color.red)
 ## ============================================
 
 # System mass -- EDIT THIS NEXT LINE
-ball.m = 1
+ball.m = 0.402 # data from initial conditions
 
 #Initial Conditions -- EDIT THE NEXT TWO LINES to match observations/measurements
-ball.pos = vector(0,-1,0)
+ball.pos = vector(-0.117,-0.638,0) # data from tracker
 ball.vel = vector(0,0,0)     
 
 # v v v DO NOT EDIT THE SECTION OF CODE BELOW v v v
@@ -66,7 +66,7 @@ cnt = 0 #variable to keep track of predictions made between each measurement
 # ^ ^ ^ DO NOT EDIT THE ABOVE SECTION OF CODE ^ ^ ^
 
 # Timing
-t = 0
+t = 0.0
 deltat = 1/210  #choose this small AND an integer multiple of the time interval between frames of experiment video
 
 
@@ -79,21 +79,21 @@ deltat = 1/210  #choose this small AND an integer multiple of the time interval 
 g = 9.8
 
 # Spring constant -- EDIT THIS LINE to match your video analysis
-k_s = 1 
+k_s = 6.87812781686 # spring constant found from period of oscillation
 
 # Relaxed length of spring -- EDIT THSI LINE to match your video analysis
-L0 = 1
+L0 = 0.7-(ball.m*g)/k_s #0.7 is the stretch length
 
 # EDIT THESE NEXT THREE LINES to specify the vector L which describes both the length and orientation of the spring
-L = vector(0,-0.75,0)
-Lhat = vector(1,0,0)  
-s = 1  
+L = ball.pos-spring.pos
+Lhat = L/mag(L) 
+s = mag(L)-L0
 
 # EDIT THESE NEXT FOUR LINES to compute the system energies 
-K = 0   # kinetic energy 
-Ug = 0  # gravitational potential energy 
-Us = 0  # spring potential energy 
-E = 0   # total energy
+K = 0.5*ball.m*mag(ball.vel)**2  # kinetic energy 0.5mv^2
+Ug = ball.m*g*ball.pos.y  # gravitational potential energy mgh
+Us = 0.5*k_s*s**2  # spring potential energy 0.5kx^2
+E = K+Ug+Us   # total energy
 
 
 ## ===============================================================
@@ -101,8 +101,7 @@ E = 0   # total energy
 ## (motion prediction and visualization)
 ## (compare with measurements; check and verify energy principle)
 ## ===============================================================
-
-while t < 5.5:         
+while t < 9.307:         
 
     # Define initial energies
     K_i = K
@@ -110,38 +109,38 @@ while t < 5.5:
     Us_i = Us
     E_i = E
     
-    # Calculate gravitational force -- EDIT THIS NEXT ONE LINE
-    Fgrav = vector(0,-1,0)
+    # Calculate gravitational force
+    Fgrav = vector(0,ball.m*(-g),0)  # mg
     
-    # Calculate spring force on mass by spring -- EDIT THIS NEXT ONE LINE
-    Fspring = Lhat
+    # Calculate spring force on mass by springE
+    Fspring = -k_s*s*Lhat # Fs=-ks
 
-    # Calculate the net force -- EDIT THIS NEXT ONE LINE
-    Fnet = vector(0,0,0)
+    # Calculate the net force
+    Fnet = Fspring+Fgrav
 
     # Apply the Momentum Principle (Newton's 2nd Law)
     # Update the object's velocity -- EDIT THIS NEXT LINE
-    ball.vel = ball.vel
+    ball.vel = ball.vel + (Fnet * deltat)/(ball.m) # vf=vi+at
     # Update the object's position -- EDIT THIS NEXT LINE
-    ball.pos = vector(0,-0.75,0)
+    ball.pos = ball.pos+ball.vel*deltat # rf = vavg*t+ri
     
     # Update the spring -- EDIT THE NEXT THREE LINES
-    L = vector(0,-0.75,0)
-    Lhat = vector(1,0,0) 
-    s = 1
+    L = ball.pos-spring.pos
+    Lhat = L/mag(L) 
+    s = mag(L)-L0
 
     spring.axis = L
     trail.append(pos=ball.pos)
 
-    # Calculate energy changes -- EDIT THESE NEXT EIGHT LINES
-    K = 0
-    deltaK = 0
-    Ug = 0
-    deltaUg = 0
-    Us = 0
-    deltaUs = 0
-    E = 0
-    deltaE = 0
+    # Calculate energy changes
+    K = 0.5*ball.m*mag(ball.vel)**2
+    deltaK = K-K_i
+    Ug = ball.m*g*ball.pos.y
+    deltaUg = Ug-Ug_i
+    Us = 0.5*k_s*s*s
+    deltaUs = Us-Us_i
+    E = K + Ug + Us
+    deltaE = E - E_i
 
     # Specify energy changes for plotting
     dKcurve.plot(t,deltaK)      # blue
