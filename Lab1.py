@@ -32,8 +32,8 @@ velcurve = gcurve(color=color.green, width=4)
 ball.m = 1
 
 # Initial Conditions -- EDIT THESE TWO LINES (as necessary)
-ball.pos = vector(0,0,0)
-ball.vel = vector(0,0,0)
+ball.pos = vector(2,0,0)
+ball.vel = vector(1,0,0)
 
 # Time -- EDIT THESE TWO LINES (as necessary)
 t = 0           # where the clock starts
@@ -46,7 +46,36 @@ deltat = 0.01   # size of each timestep
 ## (motion prediction and visualization)
 ## ======================================
 
-while t < 2.0:
+while t <4:
+    # Control how fast the program runs (larger number runs faster)
+    rate(100)
+    
+    if t>2:
+        ball.vel=vector(-2,0,0)
+    # Calculate Net Force -- EDIT THIS NEXT LINE (add more lines if necessary)
+    Fnet = vector(1,1,1)
+    # Apply the Momentum Principle (Newton's 2nd Law)
+    # Update the object's velocity -- EDIT THIS NEXT LINE
+    ball.vel = ball.vel + vector(0,0,0)
+    # Update the object's position -- EDIT THIS NEXT LINE
+    
+    ball.pos = ball.pos + ball.vel*deltat
+    
+    # Advance the clock
+    t = t + deltat
+    # Update the object's track
+    trail.append(pos=ball.pos)
+
+    # Plot position and velocity as a function of time
+    poscurve.plot(t,ball.pos.x)
+    velcurve.plot(t,ball.vel.x)
+    
+    # Displaying the position values
+    # The information that gets printed is the same as the information that is plotted above
+    # EDIT THIS NEXT LINE if you want to output velocity instead
+    print(t,ball.pos.x)
+    
+while t < 4:
     # Control how fast the program runs (larger number runs faster)
     rate(100)
     
